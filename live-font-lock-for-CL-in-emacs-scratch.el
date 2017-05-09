@@ -1,4 +1,16 @@
 
+(error "do not load this file!")
+
+;;;; WARN:
+
+;;; ==================================================================
+;;;                   THIS IS OBSOLETE FILE  
+;;;
+;;;                see el-slime-live-highlight.el
+;;;              (That is slightly better than this)
+;;; ==================================================================
+
+
 ;;;; Common lisp part of code
 ;; ================================================================
 (defpackage cl-slime-live-highlight
@@ -76,9 +88,6 @@
                      (el/slime-eval-string
                       (format "(cl-slime-live-highlight::cl/slime-extract-symbols '%S)"
                               (nreverse (cdr res)))))))) )))
-
-
-
 (defvar highligh-slime-search-symbol-regexp "\\(?:\\s_\\|\\sw\\)+")
 
 ;; Function to extract symbols from text
@@ -113,5 +122,21 @@
 
 (defun get-el/shigh-face ()
   el/shigh-face)
+
+(defun slime-eval-print-last-expression-1 (string)
+  "Evaluate sexp before point; print value into the current buffer.
+
+It FIX: bag witch appear because slime-last-expression use slime-eval-print just after insertion."
+  (interactive (list (slime-last-expression)))
+  (lexical-let ((print-point (set-marker (make-marker) (point))))
+    (slime-eval-async `(swank:eval-and-grab-output ,string)
+      (lambda (result)
+        (cl-destructuring-bind (output value) result
+          (goto-char print-point)
+          (push-mark)
+          (insert "\n")
+          (insert output value))))))
+
+(advice-add 'slime-eval-print-last-expression :override #'slime-eval-print-last-expression-1)
 
 (provide el-slime-live-highlight)
