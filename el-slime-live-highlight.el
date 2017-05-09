@@ -27,7 +27,10 @@
 (require 'jit-lock)
 (require 'slime)
 					; FIX: May be something else?
-(eval-when-compile (require 'cl)) ; for cl-destructuring-bind, lexical-let
+(eval-and-compile
+  (require 'cl-macs) ; for cl-destructuring-bind
+  (require 'cl)      ; for lexical-let
+  )
 
 ;; FIX: There is a bug that function
 ;; slime-eval-print-last-expression print resalt on the
@@ -213,7 +216,6 @@ It FIX: bag witch appear because slime-last-expression use slime-eval-print just
             (let ((p-min (point-min))
 		  (p-max (point-max)))
               (slime-live-highlight--jit-lock-prepare p-min p-max)
-              (comment (el/slime-live-fontify-region-force p-min p-max))
               (font-lock-flush))
             (slime-live-highlight--add-scroll-functions))
         (error (message "%s" -/er/-)))
